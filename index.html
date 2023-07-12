@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/ws.js"></script>
+    <title>My htmx app</title>
+  </head>
+  <body>
+    <div hx-ext="ws" ws-connect="/ws" class="max-w-2xl mx-auto justify-center w-full">
+      <h1
+        class="w-full flex flex-row justify-center text-3xl font-bold underline"
+      >
+        welcome to the chat app
+      </h1>
+      <div class="mt-10 border-solid border-2 h-96 overflow-y-scroll mx-5">
+        <div id="notifications" class="flex flex-col"></div>
+      </div>
+      <div id="haha"></div>
+      <form id="form" ws-send class="mx-5 mt-5 flex justify-center" htmx:wsAfterSend="reset()">
+        <input class="border-2 border-solid" type="text" id="message" name="message"/>
+        <button class="px-2 border-2 border-solid" type="submit">Send</button>
+      </form>
+      
+
+      <script>
+        document.addEventListener("htmx:wsAfterSend", function(event) {
+          document.getElementById("form").reset();
+          // Perform additional actions or execute code here
+        });
+      </script>
+      
+    </div>
+  </body>
+</html>
