@@ -54,6 +54,7 @@ func (c *Client) readPump() {
 func (c *Client) writePump() {
 	defer func() {
 		c.conn.Close()
+
 	}()
 	for {
 		select {
@@ -83,7 +84,7 @@ func (c *Client) writePump() {
 				msg.Type = "message"
 			}
 			msg.Timestamp = time.Now().Format("2006-01-02 15:04:05")
-			htmlString := `<div id="notifications" class="flex" hx-swap-oob="beforeend">
+			htmlString := `<div id="messages" class="flex" hx-swap-oob="beforeend">
 			<div>` + msg.Timestamp + ": " + msg.Body + `</div>
 		   </div>`
 			c.conn.WriteMessage(websocket.TextMessage, []byte(htmlString))

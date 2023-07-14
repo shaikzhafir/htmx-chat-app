@@ -19,3 +19,13 @@
 
 # Go workspace file
 go.work
+
+# ssl certs
+cert.pem
+cert.key
+
+# env 
+.env
+
+# log  
+chatapp.log

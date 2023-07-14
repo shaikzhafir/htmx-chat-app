@@ -1,17 +1,27 @@
 package main
 
 import (
-	"fmt"
 	"htmx-learning/lib"
+	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
+
+	// set up logger
+	fileName := "chatapp.log"
+	logFile, err := os.OpenFile(fileName, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0644)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer logFile.Close()
+
+	log.SetOutput(logFile)
+
+	// serve static files like index.html
 	http.Handle("/", http.FileServer(http.Dir("./")))
-	http.HandleFunc("/message", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Hello, World!")
-		fmt.Fprintf(w, "Hello, World!")
-	})
 
 	var (
 		entering = make(chan lib.Client)
@@ -27,6 +37,11 @@ func main() {
 		// handle websocket
 		broadcaster.HandleWebsocket(w, r, entering, leaving, messages)
 	})
+	isDev := os.Getenv("DEV")
+	if isDev == "true" {
+		log.Fatal(http.ListenAndServe(":8080", nil))
 
-	http.ListenAndServe(":8080", nil)
+	} else {
+		log.Fatal(http.ListenAndServeTLS(":443", "cert.pem", "cert.key", nil))
+	}
 }
