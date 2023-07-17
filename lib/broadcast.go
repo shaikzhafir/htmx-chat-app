@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"htmx-learning/models"
 	"log"
+	"math/rand"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -14,6 +16,7 @@ type Broadcaster interface {
 }
 
 type broadcaster struct {
+	ns       NameStore
 	entering chan Client
 	leaving  chan Client
 	messages chan []byte
@@ -21,8 +24,71 @@ type broadcaster struct {
 	tempstore Tempstore
 }
 
+type NameStore struct {
+	mu        sync.Mutex
+	nameStore []string
+}
+
+var nameStore = []string{
+	"Ziggyzorp",
+	"Quibblefink",
+	"Muddlechops",
+	"Gobbledygook",
+	"Blunderbuss",
+	"Wobblebottom",
+	"Snorklewhip",
+	"Jabberwocky",
+	"Flibbertigibbet",
+	"Woozleflap",
+	"Zonkers",
+	"Wobbleflop",
+	"Noodlebop",
+	"Fluffernutter",
+	"Bamboozle",
+	"Gizmo",
+	"Wobblesnatch",
+	"Jellybean",
+	"Squiggles",
+	"Snickerdoodle",
+	"Kookaburra",
+	"Zigzag",
+	"Wobblegobble",
+	"Squeegee",
+	"Gigglemuffin",
+	"Whippersnapper",
+	"Muffinhead",
+	"Skedaddle",
+	"Blunderbluss",
+	"Squizzle",
+	"Zoinks",
+	"Wiggleworm",
+	"Dingledorf",
+	"Flapdoodle",
+	"Quizzlestick",
+	"Banjo",
+	"Wobblewhisk",
+	"Bumblebee",
+	"Gobbledygoo",
+	"Fuddlewump",
+	"Schnookums",
+	"Woobleflop",
+	"Noodlebrain",
+	"Blubberbutt",
+	"Whimsy",
+	"Goober",
+	"Dingleberry",
+	"Bafflegab",
+	"Flibberflabber",
+	"Jibberjabber",
+	"Wobblekins",
+	"Fuzzbucket",
+}
+
 func NewBroadcaster() Broadcaster {
 	return &broadcaster{
+		ns: NameStore{
+			nameStore: nameStore,
+		},
 		entering:  make(chan Client),
 		leaving:   make(chan Client),
 		messages:  make(chan []byte),
@@ -48,6 +114,21 @@ func (b *broadcaster) Run() {
 	}
 }
 
+func (b *broadcaster) GetRandomName() string {
+	randInt := rand.Intn(len(b.ns.nameStore) - 1)
+	b.ns.mu.Lock()
+	name := b.ns.nameStore[randInt]
+	b.ns.nameStore = append(b.ns.nameStore[:randInt], b.ns.nameStore...)
+	b.ns.mu.Unlock()
+	return name
+}
+
+func (b *broadcaster) AddBackName(name string) {
+	b.ns.mu.Lock()
+	b.ns.nameStore = append(b.ns.nameStore, name)
+	b.ns.mu.Unlock()
+}
+
 func (b *broadcaster) HandleWebsocket(w http.ResponseWriter, r *http.Request, entering chan Client, leaving chan Client, messages chan []byte) {
 	// upgrade connection to websocket
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -56,7 +137,8 @@ func (b *broadcaster) HandleWebsocket(w http.ResponseWriter, r *http.Request, en
 		return
 	}
 	// create client
-	client := &Client{conn: conn, send: make(chan []byte, 256), broadcaster: b}
+	client := &Client{name: b.GetRandomName(), conn: conn, send: make(chan []byte, 256), broadcaster: b}
+	// assign client a name
 	// register client
 	b.entering <- *client
 
@@ -66,7 +148,7 @@ func (b *broadcaster) HandleWebsocket(w http.ResponseWriter, r *http.Request, en
 	}
 
 	enterMessage := &models.Message{
-		User:      conn.RemoteAddr().String(),
+		User:      client.name,
 		Body:      conn.RemoteAddr().String() + " entered",
 		Timestamp: time.Now().Format("2006-01-02 15:04:05"),
 		Type:      "enter",

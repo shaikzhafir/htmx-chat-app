@@ -10,29 +10,74 @@
     <title>My htmx app</title>
   </head>
   <body>
-    <div hx-ext="ws" ws-connect="/ws" class="max-w-2xl mx-auto justify-center w-full">
+    <div
+      hx-ext="ws"
+      ws-connect="/ws"
+      class="max-w-2xl mx-auto justify-center w-full"
+    >
       <h1
         class="w-full flex flex-row justify-center text-3xl font-bold underline"
       >
         welcome to the chat app
       </h1>
       <div class="mt-10 border-solid border-2 h-96 overflow-y-scroll mx-5">
-        <div id="messages" class="flex flex-col"></div>
+        <div id="messages" class="flex flex-col">
+          <!-- <div>
+            <span class="font-mono text-sm">2023-07-17 21:22:12:</span>
+            <span class="font-mono text-sm text-red-600">127.0.0.1:50126 left</span>
+          </div>
+          <div>
+            <span class="font-mono text-sm">2023-07-17 21:22:12:</span>
+            <span class="font-mono text-sm text-green-600">127.0.0.1:50126 entered</span>
+          </div>
+          <div class="w-full flex flex-col">
+            <div>
+              <span class="font-mono text-sm">2023-07-17 21:22:24:</span>
+              <span class="font-mono text-sm text-green-600">127.0.0.1:50126</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="break-words"
+                >Short messages</span
+              >
+            </div>
+          </div>
+          <div class="w-full flex flex-col">
+            <div>
+              <span class="font-mono text-sm">2023-07-17 21:22:24:</span>
+              <span class="font-mono text-sm text-green-600">127.0.0.1:50126</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="break-words"
+                >Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+                Soluta quo veritatis provident magni deserunt nostrum eveniet
+                minima temporibus. Corrupti itaque tempore magni dolorum id ab,
+                deleniti nemo explicabo reprehenderit voluptates?</span
+              >
+            </div>
+          </div> -->
+        </div>
       </div>
       <div id="haha"></div>
-      <form id="form" ws-send class="mx-5 mt-5 flex justify-center" htmx:wsAfterSend="reset()">
-        <input class="border-2 border-solid" type="text" id="message" name="message"/>
+      <form
+        id="form"
+        ws-send
+        class="mx-5 mt-5 flex justify-center"
+        htmx:wsAfterSend="reset()"
+      >
+        <input
+          class="border-2 border-solid"
+          type="text"
+          id="message"
+          name="message"
+        />
         <button class="px-2 border-2 border-solid" type="submit">Send</button>
       </form>
-      
-
       <script>
-        document.addEventListener("htmx:wsAfterSend", function(event) {
+        document.addEventListener("htmx:wsAfterSend", function (event) {
           document.getElementById("form").reset();
           // Perform additional actions or execute code here
         });
       </script>
-      
     </div>
   </body>
 </html>
